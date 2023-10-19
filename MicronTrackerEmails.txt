@@ -1,0 +1,286 @@
+   From: "Ian Dimock" <Ian@claronav.com>
+     To: "Nico Zevallos" <nzevallo@andrew.cmu.edu>
+   Date: 3/13/2020 9:22:09 AM
+Subject: RE: Micron tracker
+--------------------------------------------------
+Hi Nico,
+
+Unfortunately we don’t have a newer version of our Linux library available.
+Is there a specific linker error I can try to help debug?
+
+Regards,
+Ian
+
+From: Nico Zevallos <nzevallo@andrew.cmu.edu>
+Sent: March 12, 2020 7:28 PM
+To: Ian Dimock <Ian@claronav.com>
+Subject: Re: Micron tracker
+
+Hi Ian. My name is Nico and I work at CMU. We emailed a long time ago about getting the claron micron tracker sdk to compile. Unfortunately with a switch to a new computer I am getting a new set of linking errors. In particular concerning libMTC.a not being compiled with -fPIC. Additionally it is compiled against vxl which has changed quite a bit since v1.17 (which in turn no longer compiles with modern gcc)
+
+Just wondering if it was ever updated or of there is a new version of libMTC
+
+Thanks,
+
+Nico
+
+On Mon, Dec 10, 2018, 11:18 AM Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>> wrote:
+Hi Nico,
+
+Glad to hear things are running somewhat better now. Sorry about any mix-up with the calibration file name.
+I was thinking that the nVidia driver issue would be related to the FLTK GUI code, but it looks like the JHU code is using QT.
+I haven’t seen any negative interactions before between graphics cards and the camera.
+You mentioned switching to an old FireWire card, does it have extra power connector available? Or only through the PCI slot?
+
+Is there any way to test the JHU code without a camera connected. I am wondering if it is only freezing up when trying to use the camera.
+
+Regards,
+Ian
+
+From: Nico Zevallos <nzevallo@andrew.cmu.edu<mailto:nzevallo@andrew.cmu.edu>>
+Sent: December 7, 2018 5:54 PM
+To: Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>>
+Cc: anton.deguet@jhu.edu<mailto:anton.deguet@jhu.edu>
+Subject: Re: Micron tracker
+
+Hi, So we made some progress. It looks like the file you sent over was missing a capital B and the examples couldn't find it. Once we fixed that, both examples ran. The simpleC example ran flawlessly but we are having trouble with the CPP demo, as that hangs after only a couple of frames. The GUI is unresponsive and we don't see any new frames. Interestingly this is also the case with the code that the JHU folks wrote that you can find here https://github.com/jhu-saw/sawClaronMicronTracker/tree/devel.
+
+We had a suspicion that it had something to do with graphics drivers so we switched from nvidia to Nouveau and this indeed fixed the issue on the CPP demo, but not on our program. Have you had any experience with this? Are nvidia drivers a known issue?
+
+Thanks,
+
+Nico
+
+On Thu, Dec 6, 2018 at 1:36 PM Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>> wrote:
+Hi Nico,
+
+Good to confirm that the camera is functional and streaming images.
+We do not actually use FlyCapture on Linux, but rather use libdc1394 for the FireWire communication.
+
+You might try installing a newer version of the libdc1394 library.
+You would need to remove the link the static libdc1394.a provided, and link to the new library with '-ldc1394’ compiler flag.
+
+Regards,
+Ian
+
+From: Nico Zevallos <nzevallo@andrew.cmu.edu<mailto:nzevallo@andrew.cmu.edu>>
+Sent: December 6, 2018 1:23 PM
+To: Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>>; Anton Deguet <anton.deguet@jhu.edu<mailto:anton.deguet@jhu.edu>>
+Subject: Re: Micron tracker
+
+A few updates:
+
+First we couldn't see the firewire device created under Linux.   We used an older FireWire adapter known to work on our computer along with a firewire A to A (6pins) and that solved the problem, i.e. we can see /dev/fw0 AND /dev/fw1.   Then we added the user id to group "video" to get the unix permissions fixed.    With this done, FlyCap 2.10 still failed to enumerate the camera.  We found the following info on PointGrey:
+https://www.ptgrey.com/KB/11106
+
+Downloading the FlyCap 2.13 SDK was a bit tricky, we found that if you set your product to Dragon2, PointGrey's site shows the link for 2.13  for Ubuntu 16.04 64bits.   Once we installed FlyCap 2.13, we were able to see live images!
+
+At that point, we can't get any MTC based code to enumerate the camera so we wonder if it's because libMTC.a is linked against and older FlyCapture SDK.   Would you be able recompile/relink libMTC against FlyCap 2.13?
+
+I've cc'ed one of our collaborators at JHU that we are collaborating with who is also using this system.
+
+Thanks,
+
+Nico
+
+On Thu, Dec 6, 2018 at 11:25 AM Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>> wrote:
+It is a Bumblebee2. Model # BB2-08S2M-60 should get you the right software.
+
+Ian
+
+From: Nico Zevallos <nzevallo@andrew.cmu.edu<mailto:nzevallo@andrew.cmu.edu>>
+Sent: December 6, 2018 11:22 AM
+To: Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>>
+Subject: Re: Micron tracker
+
+What are the camera make and model?
+
+Here is my firewire output
+/sys/bus/firewire/devices/fw0/model_name:Juju
+/sys/bus/firewire/devices/fw0/vendor_name:Linux Firewire
+/sys/bus/firewire/devices/fw1/model_name:Juju
+/sys/bus/firewire/devices/fw1/vendor_name:Linux Firewire
+
+On Thu, Dec 6, 2018 at 11:18 AM Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>> wrote:
+If you are getting mtDataNotAvailable, then it is might be some issue detecting the FireWire camera on the bus.
+
+You can try to download the FlyCapture SDK (camera manufacturer software) to check whether it is something in the MicronTracker code or a general camera problem:
+https://www.ptgrey.com/flycapture-sdk
+
+Ian
+
+From: Nico Zevallos <nzevallo@andrew.cmu.edu<mailto:nzevallo@andrew.cmu.edu>>
+Sent: December 6, 2018 11:11 AM
+To: Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>>
+Subject: Re: Micron tracker
+
+Could it be the permissions for the firewire card?
+
+I printed out  the result of Cameras_AttachAvailableCameras using
+    result = Cameras_AttachAvailableCameras( calibrationDir);
+    printf("Result: %i", result);
+and get
+Result: 13 No camera available or missing calibration file. Please also check that MTHome system environment variable is set
+
+I believe 13 is mtDataNotAvailable?
+
+On Thu, Dec 6, 2018 at 10:54 AM Nico Zevallos <nzevallo@andrew.cmu.edu<mailto:nzevallo@andrew.cmu.edu>> wrote:
+OK, if I leave the firewire unplugged from the computer while I restart, then plug it in, I get a steady green light.
+
+I mistyped earlier.
+It turns out netbeans ignores my .bashrc even though its terminal does not. I had to add the environment in the project settings under 'run'
+See the attached screenshot
+
+The code for SimpleDemoC is back to reading
+
+    char *localNamePtr = getenv("MTHome");
+    if ( localNamePtr) {
+        strncpy(sMTHome, localNamePtr, size-1);
+        sMTHome[size] = '\0';
+    } else {
+//        sprintf(sMTHome,"/home/biomed/MicronTracker");
+        return(-1);
+    }
+
+and now finds that environment variable. I get
+
+ Simple MicronTracker app
+==========================
+MTC error: Data requested is not available
+No camera found!
+
+
+RUN SUCCESSFUL (total time: 51ms)
+
+
+
+On Thu, Dec 6, 2018 at 10:49 AM Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>> wrote:
+It might be because of the blinking, that is usually some sort of driver issue.
+Sometimes powering down the machine and doing a cold boot with the camera plugged in can help.
+
+It might still be a calibration file issue.
+
+In your code:
+    if ( localNamePtr) {
+        strncpy(sMTHome, localNamePtr, size-1);
+        sMTHome[size] = '\0';
+    } else {
+        sprintf(sMTHome,"/home/biomed/MicronTracker");
+//        return(-1);
+    }
+
+You listed biomed user, but your environment variable says biorobotics?
+
+Ian
+
+From: Nico Zevallos <nzevallo@andrew.cmu.edu<mailto:nzevallo@andrew.cmu.edu>>
+Sent: December 6, 2018 10:44 AM
+To: Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>>
+Subject: Re: Micron tracker
+
+Open Gl: 0
+MTHome directory: '/home/biomed/MicronTracker'
+No camera available or missing calibration file. Please also check that MTHome system environment variable is set
+
+RUN FAILED (exit value 1, total time: 3s)
+
+On Thu, Dec 6, 2018 at 10:34 AM Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>> wrote:
+That export looks ok.
+Maybe you print out the value of ‘calibrationDir’ to see where it is looking for calibrations files.
+
+Ian
+
+From: Nico Zevallos <nzevallo@andrew.cmu.edu<mailto:nzevallo@andrew.cmu.edu>>
+Sent: December 6, 2018 10:29 AM
+To: Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>>
+Subject: Re: Micron tracker
+
+I've tried unplugging and replugging in multiple times. Yesterday it was glowing green. I've also tried restarting the computer.
+
+You are right, when I switched to debugging mode I hadn't set the flag for it. Now it is indeed compiling and running.
+
+Open Gl: 0
+ No camera available or missing calibration file. Please also check that MTHome system environment variable is set
+
+I have
+export MTHome='/home/biorobotics/MicronTracker/'
+in my ~/.bashrc file. Is that not where it is supposed to be?
+
+On Thu, Dec 6, 2018 at 10:22 AM Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>> wrote:
+You should use the calibration file I attached yesterday as is, without renaming.
+You’ll need to place it in ‘$MTHome/CalibrationFiles’ directory, or ‘/home/biomed/MicronTracker/CalibrationFiles’
+
+The stack overflow may be a pointer size mismatch.
+Can you tell whether the files were compiled with LINUX64 flag? It should appear somewhere in compiler options as ‘-DLINUX64’
+
+The camera should glow a dull green when plugged in but not capturing, and then when capturing it will glow brighter. If it is blinking, you can just try to unplug it and reattach.
+Maybe there is a stack overflow in the SimpleDemo too, so the capture didn’t start correctly.
+
+Any additional outputs after loading the calibration file?
+
+Regards,
+Ian
+
+
+From: Nico Zevallos <nzevallo@andrew.cmu.edu<mailto:nzevallo@andrew.cmu.edu>>
+Sent: December 6, 2018 10:17 AM
+To: Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>>
+Subject: Re: Micron tracker
+
+I changed
+    char *localNamePtr = getenv("MTHome");
+    if ( localNamePtr) {
+        strncpy(sMTHome, localNamePtr, size-1);
+        sMTHome[size] = '\0';
+    } else {
+        //sprintf(sMTHome,"/Developer/MicronTracker");
+        return(-1);
+    }
+to
+    if ( localNamePtr) {
+        strncpy(sMTHome, localNamePtr, size-1);
+        sMTHome[size] = '\0';
+    } else {
+        sprintf(sMTHome,"/home/biomed/MicronTracker");
+//        return(-1);
+    }
+
+And now it seems to see the calibration file, but the camera is now blinking green rather than glowing green.
+
+My
+
+On Thu, Dec 6, 2018 at 10:08 AM Nico Zevallos <nzevallo@andrew.cmu.edu<mailto:nzevallo@andrew.cmu.edu>> wrote:
+Well, my MTDemoCPP has a stack overflow and MTSimpleDemoC seems to run but I don't know where all these printf statements go. It only outputs
+
+ Simple MicronTracker app
+==========================
+
+RUN SUCCESSFUL (total time: 51ms)
+
+which I assume means that it hit this line
+
+if ( getMTHome (calibrationDir, sizeof(calibrationDir)) < 0 ) {
+        // No Environment
+        return result;
+}
+
+Do I have to tell it the name of the calibration file? Should I rename the calibration file to match the one that came with my camera?
+
+On Thu, Dec 6, 2018 at 9:59 AM Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>> wrote:
+Hi Nico,
+
+Glad to hear you got it to build it.
+Any issues running the software after build? Or does it look ok now?
+
+If you have any questions about API or other aspects of the system, please let me know.
+
+Regards,
+Ian Dimock
+
+From: Nico Zevallos <nzevallo@andrew.cmu.edu<mailto:nzevallo@andrew.cmu.edu>>
+Sent: December 6, 2018 9:42 AM
+To: Ian Dimock <Ian@claronav.com<mailto:Ian@claronav.com>>
+Subject: Re: Micron tracker
+
+Ah, i needed to clean the build. It built!
+
