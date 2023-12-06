@@ -128,11 +128,18 @@ int main(int argc, char* argv[])
 	cv_bridge::CvImage imgBridge;
 	sensor_msgs::Image imgMsgLeft; // >> message to be sent
 	sensor_msgs::Image imgMsgRight; // >> message to be sent
+	unsigned char* leftBuffer = new unsigned char[x*y];
+	unsigned char* rightBuffer = new unsigned char[x*y];
 
 	while (node.ok()) {
 		MTC( Cameras_GrabFrame(NULL) ); //Grab a frame (all cameras together)
 		MTC( Markers_ProcessFrame(NULL) ); //Process the frame(s) to obtain measurements
 		if (i<20) continue; //the first 20 frames are auto-adjustment frames, and would be ignored here
+
+		// get image and push to CV::Mat
+		Camera_ImagesGet(NULL, leftBuffer, rightBuffer);
+		cv::Mat imgLeft = cv::Mat(cv::Size(x, y),CV_8UC3,leftBuffer);
+		cv::Mat imgRight = cv::Mat(cv::Size(x, y),CV_8UC3,rightBuffer);
 
 		// Publish images
 		std_msgs::Header header; // empty header
