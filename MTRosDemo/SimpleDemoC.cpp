@@ -86,6 +86,7 @@ int main(int argc, char* argv[])
 	//Create objects to receive the measurement results
 	mtHandle IdentifiedMarkers = Collection_New();
 	mtHandle PoseXf = Xform3D_New();
+	mtHandle PoseXfInv = Xform3D_New();
 	int i, j;
 	while (node.ok()) {
 		MTC( Cameras_GrabFrame(NULL) ); //Grab a frame (all cameras together)
@@ -104,6 +105,7 @@ int main(int argc, char* argv[])
 			//  using our Xform3D object, PoseXf.
 			mtHandle Marker = Collection_Int(IdentifiedMarkers, j);
 			MTC( Marker_Marker2CameraXfGet (Marker, CurrCamera, PoseXf, &IdentifyingCamera) );
+			MTC( Xform3D_Inverse (PoseXf, PoseXfInv) );
 			//We check the IdentifyingCamera output to find out if the pose is, indeed,
 			//available in the current camera space. If IdentifyingCamera==0, the current camera's
 			//coordinate space is not registered with any of the cameras which actually identified
@@ -117,7 +119,7 @@ int main(int argc, char* argv[])
 				MTC( Xform3D_ShiftGet(PoseXf, Position) );
 				//Here we obtain the rotation as a sequence of 3 angles. Often, it is more convenient
 				//(and slightly more accurage) access the rotation as a 3x3 rotation matrix.
-				MTC( Xform3D_RotAnglesDegsGet(PoseXf, &Angle[0], &Angle[1], &Angle[2]) );
+				MTC( Xform3D_RotAnglesDegsGet(PoseXfInv, &Angle[0], &Angle[1], &Angle[2]) );
 				MTC( Xform3D_HazardCodeGet(PoseXf, &Hazard) );
 				//Print the report
 				printf(">> %s at (%0.2f, %0.2f, %0.2f), rotation (degs): (%0.1f, %0.1f, %0.1f) %s\n", 
@@ -127,7 +129,7 @@ int main(int argc, char* argv[])
 					MTHazardCodeString(Hazard));
 				// Publish ROS tf
 				double  quarternion[4];
-				MTC( Xform3D_RotQuaternionsGet(PoseXf, quarternion) );
+				MTC( Xform3D_RotQuaternionsGet(PoseXfInv, quarternion) );
 				geometry_msgs::TransformStamped transformStamped;
 				transformStamped.header.stamp = t;
 				transformStamped.header.frame_id = "micron/tracker";
