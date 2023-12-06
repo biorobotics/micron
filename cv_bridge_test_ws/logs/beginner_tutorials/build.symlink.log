@@ -1,0 +1,4 @@
+Symlinking /home/biomed/micron_ws/docker/cv_bridge_test_ws/devel/share/beginner_tutorials/cmake/beginner_tutorialsConfig-version.cmake
+Symlinking /home/biomed/micron_ws/docker/cv_bridge_test_ws/devel/share/beginner_tutorials/cmake/beginner_tutorialsConfig.cmake
+Symlinking /home/biomed/micron_ws/docker/cv_bridge_test_ws/devel/lib/pkgconfig/beginner_tutorials.pc
+Symlinking /home/biomed/micron_ws/docker/cv_bridge_test_ws/devel/lib/beginner_tutorials/node

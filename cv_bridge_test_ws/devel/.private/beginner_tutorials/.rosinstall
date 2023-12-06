@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/biomed/micron_ws/docker/cv_bridge_test_ws/devel/.private/beginner_tutorials/setup.sh

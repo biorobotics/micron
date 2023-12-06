@@ -1,0 +1,6 @@
+devel_space: /home/biomed/micron_ws/docker/cv_bridge_test_ws/devel
+install: false
+install_space: /home/biomed/micron_ws/docker/cv_bridge_test_ws/install
+profile: default
+source_space: /home/biomed/micron_ws/docker/cv_bridge_test_ws/src
+workspace: /home/biomed/micron_ws/docker/cv_bridge_test_ws

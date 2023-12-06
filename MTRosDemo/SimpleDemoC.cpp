@@ -9,6 +9,12 @@ measurements from one or more cameras.
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <tf2_ros/transform_broadcaster.h>
+
+#include <cv.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include <image_transport/image_transport.h>
+
 #include "MTC.h" //MTC.h need to be in the local directory or include path
 
 
@@ -23,6 +29,28 @@ int getMTHome (  char *sMTHome, int size ); //Forward declaration
 int main(int argc, char* argv[])
 /********************************************************************/
 {
+
+	std::cout << "OpenCV version : " << CV_VERSION << std::endl;
+    std::cout << "Major version : " << CV_MAJOR_VERSION << std::endl;
+    std::cout << "Minor version : " << CV_MINOR_VERSION << std::endl;
+    std::cout << "Subminor version : " << CV_SUBMINOR_VERSION << std::endl;
+
+    cv_bridge::CvImagePtr cv_ptr;
+    cv::Mat image = cv::Mat::zeros(cv::Size(255, 255),CV_8UC1);
+
+    // try
+    // {
+    //   cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+    // }
+    // catch (cv_bridge::Exception& e)
+    // {
+    //   ROS_ERROR("cv_bridge exception: %s", e.what());
+    //   return;
+    // }
+
+    // // Draw an example circle on the video stream
+    // if (cv_ptr->image.rows > 60 && cv_ptr->image.cols > 60)
+    //   cv::circle(cv_ptr->image, cv::Point(50, 50), 10, CV_RGB(255,0,0));
 
 	printf("\n Simple MicronTracker app");
 	printf("\n==========================\n");
@@ -88,10 +116,34 @@ int main(int argc, char* argv[])
 	mtHandle PoseXf = Xform3D_New();
 	mtHandle PoseXfInv = Xform3D_New();
 	int i, j;
+
+
+	image_transport::ImageTransport it_(node);
+	image_transport::Publisher imagePubLeft;
+	image_transport::Publisher imagePubRight;
+	imagePubLeft = it_.advertise("image_left", 1);
+	imagePubRight = it_.advertise("image_right", 1);
+	cv::Mat imgLeft = cv::Mat::zeros(cv::Size(x, y),CV_8UC3);
+	cv::Mat imgRight = cv::Mat::zeros(cv::Size(x, y),CV_8UC3);
+	cv_bridge::CvImage imgBridge;
+	sensor_msgs::Image imgMsgLeft; // >> message to be sent
+	sensor_msgs::Image imgMsgRight; // >> message to be sent
+
 	while (node.ok()) {
 		MTC( Cameras_GrabFrame(NULL) ); //Grab a frame (all cameras together)
 		MTC( Markers_ProcessFrame(NULL) ); //Process the frame(s) to obtain measurements
 		if (i<20) continue; //the first 20 frames are auto-adjustment frames, and would be ignored here
+
+		// Publish images
+		std_msgs::Header header; // empty header
+		header.stamp = ros::Time::now(); // time
+		imgBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, imgLeft);
+		imgBridge.toImageMsg(imgMsgLeft);
+		imagePubLeft.publish(imgMsgLeft);
+		imgBridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, imgRight);
+		imgBridge.toImageMsg(imgMsgRight);
+		imagePubRight.publish(imgMsgRight);
+
 		//Here, MTC internally maintains the measurement results.
 		//Those results can be accessed until the next call to Markers_ProcessFrame, when they
 		//are updated to reflect the next frame's content.

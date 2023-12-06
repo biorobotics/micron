@@ -1,0 +1,1 @@
+/home/biomed/micron_ws/docker/cv_bridge_test_ws/devel/.private/beginner_tutorials/share/beginner_tutorials/cmake/beginner_tutorialsConfig.cmake
